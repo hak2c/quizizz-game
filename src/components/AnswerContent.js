@@ -37,7 +37,7 @@ export default function AnswerContent({
       }}
     >
       <div
-        onClick={!checked ? (e) => chooseAnswer(e, id, question) : undefined}
+        onClick={!checked ? (e) => chooseAnswer(id, question) : undefined}
         className={
           "quizizzGame__answer--item-inner overlay d-flex justify-content-center align-items-center text-center" +
           hideAnswer +

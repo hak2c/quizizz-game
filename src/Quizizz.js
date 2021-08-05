@@ -2,6 +2,8 @@ import { useState } from "react";
 import QuestionContent from "./components/QuestionContent";
 import PrintScore from "./components/PrintScore";
 
+import countDownBeginMusic from "./audio/countDownBegin.mp3";
+
 const QUESTIONS = [
   {
     id: 1,
@@ -80,18 +82,6 @@ function checkMultiCondition(choices, answer) {
   return result;
 }
 
-function playMusic(filename) {
-  let audio = document.createElement("audio");
-  audio.src = "../src/quizizz/audio/" + filename;
-  document.body.append(audio);
-  audio.play();
-}
-function pauseMusic() {
-  let audio = document.getElementById("audio");
-  audio.pause();
-  audio.remove();
-}
-
 const newArr = shuffeQuestionsList(QUESTIONS);
 
 export default function Quizizz() {
@@ -109,16 +99,18 @@ export default function Quizizz() {
   let [checked, setChecked] = useState(false); // True khi đã chọn đủ đáp án
   let [checkedResult, setCheckedResult] = useState(false); // True khi lựa chọn các đáp án đúng
 
+  let [playCountDownTimerMusic, setPlayCountDownTimerMusic] = useState(false);
+
   let content = "";
 
   function startGame() {
     setCountBeginGame(TIME_BEGIN_GAME);
-    // playMusic("countDownBegin.mp3");
+    setPlayCountDownTimerMusic(true);
     const countDown = setInterval(() => {
       setCountBeginGame((prevTimer) => {
         if (prevTimer === null) {
           clearInterval(countDown);
-          pauseMusic();
+          setPlayCountDownTimerMusic(false);
         } else {
           if (prevTimer > 0) {
             return prevTimer - 1;
@@ -127,7 +119,7 @@ export default function Quizizz() {
             resetState();
             countTimer();
             clearInterval(countDown);
-            // pauseMusic();
+            setPlayCountDownTimerMusic(false);
             return null;
           }
         }
@@ -141,6 +133,7 @@ export default function Quizizz() {
     setChoices([]);
     setChecked(false);
     setCheckedResult(false);
+    setPlayCountDownTimerMusic(false);
   }
   function resetGame() {
     setCountBeginGame(null);
@@ -168,7 +161,7 @@ export default function Quizizz() {
               } else {
                 clearInterval(interval);
                 setCompleteGame(true);
-                return prevTimer;
+                return null;
               }
             });
           }
@@ -200,7 +193,7 @@ export default function Quizizz() {
     }, 1000);
   }
 
-  function chooseAnswer(e, id, question) {
+  function chooseAnswer(id, question) {
     let answer = question.answerOptions.filter((answer) => answer.id == id)[0];
     let remainingTime = timer;
     setTimer(null);
@@ -258,6 +251,7 @@ export default function Quizizz() {
         checked={checked}
         checkedResult={checkedResult}
         choices={choices}
+        playMusic={playCountDownTimerMusic}
         chooseAnswer={chooseAnswer}
       />
     );
@@ -279,6 +273,9 @@ export default function Quizizz() {
                 <p className={"mb-0 animate__animated animate__zoomIn"}>
                   {countBeginGame === 0 ? "GO!" : countBeginGame}
                 </p>
+                <audio autoPlay={true}>
+                  <source type="audio/mp3" src={countDownBeginMusic} />
+                </audio>
               </div>
             )}
           </div>

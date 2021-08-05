@@ -2,6 +2,8 @@ import AnswerTopContent from "./AnswerTopContent";
 import AnswerContent from "./AnswerContent";
 import AnswerBottomContent from "./AnswerBottomContent";
 
+import countDownTimerMusic from "../audio/countDownTimer.mp3";
+
 export default function QuestionContent({
   questions,
   currentQuestion,
@@ -10,6 +12,7 @@ export default function QuestionContent({
   checked,
   checkedResult,
   choices,
+  playMusic,
   chooseAnswer,
 }) {
   const question = questions[currentQuestion];
@@ -55,6 +58,11 @@ export default function QuestionContent({
         </div>
         <AnswerBottomContent checked={checked} checkedResult={checkedResult} />
       </div>
+      {playMusic && (
+        <audio autoPlay={true}>
+          <source type="audio/mp3" src={countDownTimerMusic} />
+        </audio>
+      )}
     </div>
   );
 }
