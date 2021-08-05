@@ -162,7 +162,7 @@ export default function Quizizz() {
               } else {
                 clearInterval(interval);
                 setCompleteGame(true);
-                return null;
+                return prevTimer;
               }
             });
           }

@@ -1,3 +1,6 @@
+import rightAnswerMusic from "../audio/rightAnswer.mp3";
+import wrongAnswerMusic from "../audio/wrongAnswer.mp3";
+
 export default function AnswerBottomContent({ checked, checkedResult }) {
   let bgColor = "";
   if (checked) {
@@ -11,6 +14,14 @@ export default function AnswerBottomContent({ checked, checkedResult }) {
       }
     >
       {checked && text}
+      {checked && (
+        <audio autoPlay={true}>
+          <source
+            type="audio/mp3"
+            src={checkedResult ? rightAnswerMusic : wrongAnswerMusic}
+          />
+        </audio>
+      )}
     </div>
   );
 }
