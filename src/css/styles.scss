@@ -1,6 +1,4 @@
 $main-background-color: #000000;
-$main-background-image: url("../images/background.jpg") no-repeat center center
-  fixed;
 
 $font-size: 1.8rem;
 $button-font-size: 4.8rem;
@@ -77,11 +75,6 @@ hr {
 
 /* Start button */
 .quizizzGame__start {
-  background: $main-background-image;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
   .quizizzGame__start--button {
     font-size: $button-font-size;
     padding: $button-padding;
@@ -108,11 +101,6 @@ hr {
   .quizizzGame__question--main-content {
     height: calc(100vh - 165px);
     .quizizzGame__question--main-inner {
-      background: $main-background-image;
-      -webkit-background-size: cover;
-      -moz-background-size: cover;
-      -o-background-size: cover;
-      background-size: cover;
       margin-left: 0;
       margin-right: 0;
       border-radius: $overlay-border-radius;

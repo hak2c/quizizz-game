@@ -3,6 +3,7 @@ import QuestionContent from "./components/QuestionContent";
 import PrintScore from "./components/PrintScore";
 
 import countDownBeginMusic from "./audio/countDownBegin.mp3";
+import backgroundImage from "./images/background.jpg";
 
 const QUESTIONS = [
   {
@@ -259,7 +260,14 @@ export default function Quizizz() {
   return (
     <div className="quizizzGame">
       {currentQuestion === null ? (
-        <div className="quizizzGame__start h-100">
+        <div
+          className="quizizzGame__start h-100"
+          style={{
+            background:
+              "url(" + backgroundImage + ") no-repeat center center fixed",
+            backgroundSize: "cover",
+          }}
+        >
           <div className=" d-flex justify-content-center align-items-center w-100 h-100 overlay">
             {countBeginGame === null ? (
               <button

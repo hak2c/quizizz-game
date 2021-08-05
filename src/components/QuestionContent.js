@@ -3,6 +3,7 @@ import AnswerContent from "./AnswerContent";
 import AnswerBottomContent from "./AnswerBottomContent";
 
 import countDownTimerMusic from "../audio/countDownTimer.mp3";
+import backgroundImage from "../images/background.jpg";
 
 export default function QuestionContent({
   questions,
@@ -40,7 +41,14 @@ export default function QuestionContent({
           totalLength={questions.length}
         />
         <div className="col-12 animate__animated animate__slideInLeft quizizzGame__question--main-content">
-          <div className="quizizzGame__question--main-inner d-flex flex-wrap justify-content-between h-100">
+          <div
+            className="quizizzGame__question--main-inner d-flex flex-wrap justify-content-between h-100"
+            style={{
+              background:
+                "url(" + backgroundImage + ") no-repeat center center fixed",
+              backgroundSize: "cover",
+            }}
+          >
             <div className="quizizzGame__question--text w-100">
               <div className="d-flex flex-wrap justify-content-center align-items-center h-100 overlay">
                 <h3>{question.questionText}</h3>
