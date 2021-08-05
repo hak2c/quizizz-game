@@ -1,2 +1,2 @@
-# quizizz-game
+# reactjs-excercise
 Created with CodeSandbox
