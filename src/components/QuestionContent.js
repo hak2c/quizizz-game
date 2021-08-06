@@ -42,7 +42,7 @@ export default function QuestionContent({
         />
         <div className="col-12 animate__animated animate__slideInLeft quizizzGame__question--main-content">
           <div
-            className="quizizzGame__question--main-inner d-flex flex-wrap justify-content-between h-100"
+            className="quizizzGame__question--main-inner d-flex flex-column justify-content-lg-between h-100"
             style={{
               background:
                 "url(" + backgroundImage + ") no-repeat center center fixed",
@@ -50,15 +50,17 @@ export default function QuestionContent({
             }}
           >
             <div className="quizizzGame__question--text w-100">
-              <div className="d-flex flex-wrap justify-content-center align-items-center h-100 overlay">
+              <div className="d-flex flex-column justify-content-center align-items-center text-center overlay">
                 <h3>{question.questionText}</h3>
                 {question.isMultiple && (
-                  <p>(Choose {countRightAnswer} correct answer(s))</p>
+                  <h4>
+                    <em>(Choose {countRightAnswer} correct answer(s))</em>
+                  </h4>
                 )}
               </div>
             </div>
             <div className="quizizzGame__answers w-100 ">
-              <div className="quizizzGame__answers--inner d-flex flex-wrap justify-content-between">
+              <div className="quizizzGame__answers--inner d-flex flex-column flex-lg-row justify-content-lg-between">
                 {listAnswer}
               </div>
             </div>

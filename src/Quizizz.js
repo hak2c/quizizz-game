@@ -1,6 +1,6 @@
 import { useState } from "react";
 import QuestionContent from "./components/QuestionContent";
-import PrintScore from "./components/PrintScore";
+import GameStats from "./components/GameStats";
 
 import countDownBeginMusic from "./audio/countDownBegin.mp3";
 import backgroundImage from "./images/background.jpg";
@@ -93,7 +93,11 @@ export default function Quizizz() {
 
   let [countBeginGame, setCountBeginGame] = useState(null);
 
-  let [score, setScore] = useState(0); // Lưu số câu trả lời đúng
+  let [score, setScore] = useState(0); // Lưu điểm
+  let [correctAnswer, setCorrectAnswer] = useState(0);
+  let [streak, setStreak] = useState(0);
+  let [countStreak, setCountStreak] = useState(0);
+
   let [completeGame, setCompleteGame] = useState(false);
 
   let [choices, setChoices] = useState([]); // Mảng lưu id các đáp án được chọn
@@ -135,6 +139,7 @@ export default function Quizizz() {
     setChecked(false);
     setCheckedResult(false);
     setPlayCountDownTimerMusic(false);
+    setCorrectAnswer(0);
   }
   function resetGame() {
     setCountBeginGame(null);
@@ -175,16 +180,17 @@ export default function Quizizz() {
     let timeCounter = TIME_TO_NEXT_QUESTION;
     const interval = setInterval(() => {
       if (timeCounter == 0) {
-        setTimer(TIME_LIMIT);
-        countTimer();
         setQuestion((prevQuestion) => {
           if (prevQuestion < listQuestions.length - 1) {
             setChecked(false);
             setCheckedResult(false);
             setChoices([]);
+            setTimer(TIME_LIMIT);
+            countTimer();
             return prevQuestion + 1;
           } else {
-            return setCompleteGame(true);
+            setCompleteGame(true);
+            return prevQuestion;
           }
         });
         clearInterval(interval);
@@ -197,14 +203,19 @@ export default function Quizizz() {
   function chooseAnswer(id, question) {
     let answer = question.answerOptions.filter((answer) => answer.id == id)[0];
     let remainingTime = timer;
+
     setTimer(null);
     if (!question.isMultiple) {
       // One correct answer
       setChecked(true);
       setChoices([Number(id)]);
       if (answer.isCorrect) {
-        setScore(score + remainingTime);
+        calculateStreak();
+        calculateScore(remainingTime);
+        setCorrectAnswer(correctAnswer + 1);
         setCheckedResult(true);
+      } else {
+        setStreak(0);
       }
       getNextQuestion();
     } else {
@@ -226,18 +237,32 @@ export default function Quizizz() {
           setChecked(true);
           // đủ đáp án
           if (checkMultiCondition(arrChoices, question.answerOptions)) {
-            setScore(score + remainingTime);
+            calculateStreak();
+            calculateScore(remainingTime);
+            setCorrectAnswer(correctAnswer + 1);
             setCheckedResult(true);
+          } else {
+            setStreak(0);
           }
           getNextQuestion();
         }
       }
     }
   }
+  function calculateScore(remainingTime) {
+    return setScore(score + remainingTime + streak * 100);
+  }
+  function calculateStreak() {
+    if (streak < 3) {
+      if (score === 2) setCountStreak(countStreak + 1);
+      setStreak(streak + 1);
+    }
+  }
   if (completeGame) {
     content = (
-      <PrintScore
+      <GameStats
         score={score}
+        correctAnswer={correctAnswer}
         questionsLength={listQuestions.length}
         resetGame={resetGame}
       />

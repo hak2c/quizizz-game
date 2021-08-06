@@ -23,7 +23,6 @@ export default function AnswerContent({
     if (isCorrect) showResultBg = " right-answer";
   }
 
-  // let itemWidth = "calc((100% - (20px + " + (answerLength - 1) * 10 + "px))";
   return (
     <div
       className="quizizzGame__answer--item"
