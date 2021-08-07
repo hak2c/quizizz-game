@@ -90,6 +90,7 @@ export default function Quizizz() {
   let [currentQuestion, setQuestion] = useState(null); // index của current question
 
   let [timer, setTimer] = useState(TIME_LIMIT); // đếm time để chuyển câu hỏi
+  let [stopTimer, setStopTimer] = useState(false);
 
   let [countBeginGame, setCountBeginGame] = useState(null);
 
@@ -123,7 +124,7 @@ export default function Quizizz() {
           } else {
             setQuestion(0);
             resetState();
-            countTimer();
+            // countTimer();
             clearInterval(countDown);
             setPlayCountDownTimerMusic(false);
             return null;
@@ -142,6 +143,7 @@ export default function Quizizz() {
     setChosenAnswer(false);
     setPlayCountDownTimerMusic(false);
     setCorrectAnswer(0);
+    setStopTimer(false);
   }
   function resetGame() {
     setCountBeginGame(null);
@@ -162,27 +164,23 @@ export default function Quizizz() {
   function countTimer() {
     const interval = setInterval(() => {
       setTimer((prevTimer) => {
-        if (prevTimer === null) {
-          clearInterval(interval);
+        if (prevTimer > 0) {
+          return prevTimer - 1;
         } else {
-          if (prevTimer > 0) {
-            return prevTimer - 1;
-          } else {
-            setQuestion((prevQuestion) => {
-              if (prevQuestion < listQuestions.length - 1) {
-                setStateWhenNextQuestion();
-                return prevQuestion + 1;
-              } else {
-                clearInterval(interval);
-                setCompleteGame(true);
-                return prevTimer;
-              }
-            });
-          }
+          setQuestion((prevQuestion) => {
+            if (prevQuestion < listQuestions.length - 1) {
+              setStateWhenNextQuestion();
+              return prevQuestion + 1;
+            } else {
+              setCompleteGame(true);
+              clearInterval(interval);
+            }
+          });
+          return TIME_LIMIT;
         }
-        return prevTimer;
       });
     }, 10);
+    if (stopTimer) return clearInterval(interval);
   }
   function getNextQuestion() {
     let timeCounter = TIME_TO_NEXT_QUESTION;
@@ -191,7 +189,8 @@ export default function Quizizz() {
         setQuestion((prevQuestion) => {
           if (prevQuestion < listQuestions.length - 1) {
             setStateWhenNextQuestion();
-            countTimer();
+            setStopTimer(false);
+            // countTimer();
             return prevQuestion + 1;
           } else {
             setCompleteGame(true);
@@ -208,21 +207,14 @@ export default function Quizizz() {
   function handleChooseAnswer(id, question) {
     let answer = question.answerOptions.filter((answer) => answer.id == id)[0];
     let remainingTime = timer;
-
-    setTimer(null);
+    console.log(remainingTime);
+    setStopTimer(true);
     if (!question.isMultiple) {
       // One correct answer
       setChecked(true);
       setChosenAnswer(true);
       setChoices([Number(id)]);
-      if (answer.isCorrect) {
-        calculateScore(remainingTime);
-        setCorrectAnswer(correctAnswer + 1);
-        setCheckedResult(true);
-      } else {
-        setStreak(0);
-      }
-      getNextQuestion();
+      checkAnswerResult(answer.isCorrect, remainingTime);
     } else {
       // Multi correct answer
       const countRightAnswer = question.answerOptions.filter(
@@ -241,17 +233,23 @@ export default function Quizizz() {
         if (arrChoices.length === countRightAnswer) {
           setChecked(true);
           // đủ đáp án
-          if (checkMultiCondition(arrChoices, question.answerOptions)) {
-            calculateScore(remainingTime);
-            setCorrectAnswer(correctAnswer + 1);
-            setCheckedResult(true);
-          } else {
-            setStreak(0);
-          }
-          getNextQuestion();
+          checkAnswerResult(
+            checkMultiCondition(arrChoices, question.answerOptions),
+            remainingTime
+          );
         }
       }
     }
+  }
+  function checkAnswerResult(condition, remainingTime) {
+    if (condition) {
+      calculateScore(remainingTime);
+      setCorrectAnswer(correctAnswer + 1);
+      setCheckedResult(true);
+    } else {
+      setStreak(0);
+    }
+    getNextQuestion();
   }
   function calculateScore(remainingTime) {
     let oldStreak = streak;
