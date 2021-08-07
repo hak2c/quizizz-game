@@ -14,7 +14,7 @@ $countdown-mobile-div-height: $countdown-mobile-font-size * 2;
 
 $overlay-background-color: rgba(0, 0, 0, 0.5);
 $overlay-border-radius: 16px;
-$element-bodder-radius: 8px;
+$element-border-radius: 8px;
 
 $progress-height: 5px;
 $progress-border-radius: 5px;
@@ -35,6 +35,9 @@ $summary-progress-background-color: #00c985;
 $button-reset-game-background: #8854c0;
 $button-reset-game-shadow: #8854c0;
 $button-reset-game-border-radius: 8px;
+
+$streak-color: hsla(0, 0%, 100%, 0.15);
+$streak-bar-background: #ffbe2f;
 
 * {
   box-sizing: border-box;
@@ -93,7 +96,7 @@ hr {
     font-size: $button-mobile-font-size;
     padding: $button-padding;
     border: 1px solid $button-border-color;
-    border-radius: $element-bodder-radius;
+    border-radius: $element-border-radius;
     color: $text-color;
     background-color: transparent;
   }
@@ -142,7 +145,7 @@ hr {
           padding: 10px 10px 5px;
         }
         & > div {
-          border-radius: $element-bodder-radius;
+          border-radius: $element-border-radius;
           padding: 3rem 2rem;
           @media screen and (min-width: 992px) {
             height: 100%;
@@ -167,7 +170,7 @@ hr {
             }
             .quizizzGame__answer--item-inner {
               height: 100%;
-              border-radius: $element-bodder-radius;
+              border-radius: $element-border-radius;
               padding: 10px;
               cursor: pointer;
               color: $answer-text-color;
@@ -190,13 +193,9 @@ hr {
   .quizizzGame__top {
     height: 60px;
     .quizizzGame__top--inner {
-      padding: 10px 0;
-      .quizizzGame__top--step {
-        #current {
-          font-size: 1.4rem;
-        }
-      }
       .quizizzGame__top--timer {
+        height: $progress-height;
+        margin: 5px 0;
         .quizizzGame__top--timer-total {
           height: $progress-height;
           width: 100%;
@@ -209,8 +208,74 @@ hr {
           border-radius: $progress-border-radius;
         }
       }
-      .quizizzGame__top--score {
-        text-align: right;
+      .top-block {
+        padding: 0 14px;
+        border-radius: $element-border-radius;
+      }
+      .quizizzGame__top--inner-left {
+        & > div {
+          gap: 10px;
+        }
+        .quizizzGame__top--step {
+          background: $streak-color;
+          height: 40px;
+          line-height: 40px;
+          #current {
+            font-size: 1.4rem;
+            @media screen and (min-width: 568px) {
+              font-size: 1.6rem;
+            }
+          }
+          #total {
+            line-height: 1.5rem;
+            font-size: 1rem;
+            @media screen and (min-width: 568px) {
+              line-height: 1.7rem;
+              font-size: 1.2rem;
+            }
+          }
+        }
+        .quizizzGame__streak {
+          height: 40px;
+          width: 284px;
+          border-radius: $element-border-radius;
+          border: 2px solid $streak-color;
+          position: relative;
+          .streak-line-left,
+          .streak-line-right {
+            position: absolute;
+            height: 12px;
+            width: 2px;
+            border-radius: 1px;
+            background-color: hsla(0, 0%, 100%, 0.2);
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3;
+          }
+          .streak-line-left {
+            left: calc(100% / 3);
+          }
+          .streak-line-right {
+            right: calc(100% / 3);
+          }
+          .quizizzGame__streak--status {
+            height: 36px;
+            font-size: 1.4rem;
+            line-height: 36px;
+            padding: 0 5px;
+            background-color: $streak-bar-background;
+            border-radius: $element-border-radius;
+          }
+        }
+        .streak-bonus {
+          font-size: 1.4rem;
+        }
+      }
+
+      .quizizzGame__top--inner-right {
+        .quizizzGame__top--score {
+          text-align: right;
+        }
       }
     }
   }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QuestionContent from "./components/QuestionContent";
 import GameStats from "./components/GameStats";
 
@@ -103,6 +103,7 @@ export default function Quizizz() {
   let [choices, setChoices] = useState([]); // Mảng lưu id các đáp án được chọn
   let [checked, setChecked] = useState(false); // True khi đã chọn đủ đáp án
   let [checkedResult, setCheckedResult] = useState(false); // True khi lựa chọn các đáp án đúng
+  let [chosenAnswer, setChosenAnswer] = useState(false);
 
   let [playCountDownTimerMusic, setPlayCountDownTimerMusic] = useState(false);
 
@@ -138,15 +139,25 @@ export default function Quizizz() {
     setChoices([]);
     setChecked(false);
     setCheckedResult(false);
+    setChosenAnswer(false);
     setPlayCountDownTimerMusic(false);
     setCorrectAnswer(0);
   }
   function resetGame() {
     setCountBeginGame(null);
-    setTimer(null);
+    setTimer(TIME_LIMIT);
     setListQuestions(newArr);
     setQuestion(null);
+    setStreak(0);
+    setCountStreak(0);
     resetState();
+  }
+  function setStateWhenNextQuestion() {
+    setTimer(TIME_LIMIT);
+    setChecked(false);
+    setCheckedResult(false);
+    setChosenAnswer(false);
+    setChoices([]);
   }
   function countTimer() {
     const interval = setInterval(() => {
@@ -159,10 +170,7 @@ export default function Quizizz() {
           } else {
             setQuestion((prevQuestion) => {
               if (prevQuestion < listQuestions.length - 1) {
-                setTimer(TIME_LIMIT);
-                setChecked(false);
-                setCheckedResult(false);
-                setChoices([]);
+                setStateWhenNextQuestion();
                 return prevQuestion + 1;
               } else {
                 clearInterval(interval);
@@ -172,7 +180,7 @@ export default function Quizizz() {
             });
           }
         }
-        return timer;
+        return prevTimer;
       });
     }, 10);
   }
@@ -182,10 +190,7 @@ export default function Quizizz() {
       if (timeCounter == 0) {
         setQuestion((prevQuestion) => {
           if (prevQuestion < listQuestions.length - 1) {
-            setChecked(false);
-            setCheckedResult(false);
-            setChoices([]);
-            setTimer(TIME_LIMIT);
+            setStateWhenNextQuestion();
             countTimer();
             return prevQuestion + 1;
           } else {
@@ -200,7 +205,7 @@ export default function Quizizz() {
     }, 1000);
   }
 
-  function chooseAnswer(id, question) {
+  function handleChooseAnswer(id, question) {
     let answer = question.answerOptions.filter((answer) => answer.id == id)[0];
     let remainingTime = timer;
 
@@ -208,6 +213,7 @@ export default function Quizizz() {
     if (!question.isMultiple) {
       // One correct answer
       setChecked(true);
+      setChosenAnswer(true);
       setChoices([Number(id)]);
       if (answer.isCorrect) {
         calculateScore(remainingTime);
@@ -223,7 +229,7 @@ export default function Quizizz() {
         (item) => item.isCorrect
       ).length;
       let arrChoices = [...choices];
-
+      setChosenAnswer(true);
       if (arrChoices.includes(Number(id))) {
         // đã có trong mảng choice > uncheck
         arrChoices.splice(arrChoices.indexOf(Number(id)), 1);
@@ -248,13 +254,13 @@ export default function Quizizz() {
     }
   }
   function calculateScore(remainingTime) {
-    let oldScore = score;
-    let newScore = score + remainingTime + streak * 100;
-    if (streak < 3) {
-      if (oldScore === 2) setCountStreak(countStreak + 1);
-      setStreak(streak + 1);
+    let oldStreak = streak;
+    let newScore = score;
+    if (oldStreak < 3) {
+      setStreak(oldStreak + 1);
+      if (oldStreak === 2) setCountStreak(countStreak + 1);
     }
-    setScore(newScore);
+    setScore(newScore + remainingTime + (oldStreak + 1) * 100);
   }
   if (completeGame) {
     content = (
@@ -273,11 +279,13 @@ export default function Quizizz() {
         currentQuestion={currentQuestion}
         timer={timer}
         score={score}
+        streak={streak}
         checked={checked}
         checkedResult={checkedResult}
+        chosenAnswer={chosenAnswer}
         choices={choices}
         playMusic={playCountDownTimerMusic}
-        chooseAnswer={chooseAnswer}
+        handleChooseAnswer={handleChooseAnswer}
       />
     );
   }

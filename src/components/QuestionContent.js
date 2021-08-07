@@ -10,11 +10,13 @@ export default function QuestionContent({
   currentQuestion,
   timer,
   score,
+  streak,
   checked,
   checkedResult,
+  chosenAnswer,
   choices,
   playMusic,
-  chooseAnswer,
+  handleChooseAnswer,
 }) {
   const question = questions[currentQuestion];
   const countRightAnswer = question.answerOptions.filter(
@@ -26,7 +28,7 @@ export default function QuestionContent({
       question={question}
       choices={choices}
       checked={checked}
-      chooseAnswer={chooseAnswer}
+      handleChooseAnswer={handleChooseAnswer}
       key={answer.id}
     />
   ));
@@ -37,6 +39,8 @@ export default function QuestionContent({
         <AnswerTopContent
           timer={timer}
           score={score}
+          streak={streak}
+          chosenAnswer={chosenAnswer}
           currentQuestion={currentQuestion}
           totalLength={questions.length}
         />
