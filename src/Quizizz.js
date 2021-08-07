@@ -210,7 +210,6 @@ export default function Quizizz() {
       setChecked(true);
       setChoices([Number(id)]);
       if (answer.isCorrect) {
-        calculateStreak();
         calculateScore(remainingTime);
         setCorrectAnswer(correctAnswer + 1);
         setCheckedResult(true);
@@ -237,7 +236,6 @@ export default function Quizizz() {
           setChecked(true);
           // đủ đáp án
           if (checkMultiCondition(arrChoices, question.answerOptions)) {
-            calculateStreak();
             calculateScore(remainingTime);
             setCorrectAnswer(correctAnswer + 1);
             setCheckedResult(true);
@@ -250,13 +248,13 @@ export default function Quizizz() {
     }
   }
   function calculateScore(remainingTime) {
-    return setScore(score + remainingTime + streak * 100);
-  }
-  function calculateStreak() {
+    let oldScore = score;
+    let newScore = score + remainingTime + streak * 100;
     if (streak < 3) {
-      if (score === 2) setCountStreak(countStreak + 1);
+      if (oldScore === 2) setCountStreak(countStreak + 1);
       setStreak(streak + 1);
     }
+    setScore(newScore);
   }
   if (completeGame) {
     content = (
@@ -264,6 +262,7 @@ export default function Quizizz() {
         score={score}
         correctAnswer={correctAnswer}
         questionsLength={listQuestions.length}
+        countStreak={countStreak}
         resetGame={resetGame}
       />
     );

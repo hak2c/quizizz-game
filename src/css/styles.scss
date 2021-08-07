@@ -2,12 +2,15 @@ $main-background-color: #000000;
 
 $font-size: 1.8rem;
 $button-font-size: 4.8rem;
+$button-mobile-font-size: 3.2rem;
 $button-padding: 1rem 2.5rem;
 $button-border-color: #ffffff;
 $text-color: #ffffff;
 
 $countdown-font-size: 6rem;
 $countdown-div-height: $countdown-font-size * 2;
+$countdown-mobile-font-size: 4rem;
+$countdown-mobile-div-height: $countdown-mobile-font-size * 2;
 
 $overlay-background-color: rgba(0, 0, 0, 0.5);
 $overlay-border-radius: 16px;
@@ -28,6 +31,10 @@ $summary-progress-height: 16px;
 $summary-progress-border-radius: 8px;
 $summary-total-background-color: #ef3c69;
 $summary-progress-background-color: #00c985;
+
+$button-reset-game-background: #8854c0;
+$button-reset-game-shadow: #8854c0;
+$button-reset-game-border-radius: 8px;
 
 * {
   box-sizing: border-box;
@@ -83,7 +90,7 @@ hr {
 /* Start button */
 .quizizzGame__start {
   .quizizzGame__start--button {
-    font-size: $button-font-size;
+    font-size: $button-mobile-font-size;
     padding: $button-padding;
     border: 1px solid $button-border-color;
     border-radius: $element-bodder-radius;
@@ -91,10 +98,20 @@ hr {
     background-color: transparent;
   }
   .quizizzGame__start--countdown {
-    font-size: $countdown-font-size;
-    height: $countdown-div-height;
-    line-height: $countdown-div-height;
+    font-size: $countdown-mobile-font-size;
+    height: $countdown-mobile-div-height;
+    line-height: $countdown-mobile-div-height;
     background-color: $main-background-color;
+  }
+  @media screen and (min-width: 768px) {
+    .quizizzGame__start--button {
+      font-size: $button-font-size;
+    }
+    .quizizzGame__start--countdown {
+      font-size: $countdown-font-size;
+      height: $countdown-div-height;
+      line-height: $countdown-div-height;
+    }
   }
 }
 
@@ -218,20 +235,77 @@ hr {
     margin: 0 auto;
     padding: 4px 8px 0 8px;
     height: 100%;
-    .quizizzGame__stats--accuracy {
-      padding: 12px 16px 16px;
-      background-color: $summary-background-color;
-      border-radius: $summary-border-radius;
-      .quizizzGame__stats--accuracy-total {
-        height: $summary-progress-height;
-        width: 100%;
-        border-radius: $summary-progress-border-radius;
-        background-color: $summary-total-background-color;
+    .quizizzGame__stats--inner-top {
+      .summary-block {
+        background-color: $summary-background-color;
+        padding: 12px 16px 16px;
+        margin-bottom: 10px;
+        border-radius: $summary-border-radius;
       }
-      .quizizzGame__stats--accuracy-progress {
-        height: $summary-progress-height;
-        background-color: $summary-progress-background-color;
-        border-radius: $summary-progress-border-radius;
+      .quizizzGame__stats--accuracy {
+        p {
+          font-size: 1.1rem;
+          @media screen and (min-width: 568px) {
+            font-size: 1.4rem;
+          }
+        }
+        .quizizzGame__stats--accuracy-total {
+          height: $summary-progress-height;
+          width: 100%;
+          border-radius: $summary-progress-border-radius;
+          background-color: $summary-total-background-color;
+        }
+        .quizizzGame__stats--accuracy-progress {
+          height: $summary-progress-height;
+          background-color: $summary-progress-background-color;
+          border-radius: $summary-progress-border-radius;
+          line-height: 16px;
+          span {
+            font-size: 1.4rem;
+          }
+        }
+      }
+      .quizizzGame__stats--performance {
+        .quizizzGame__stats--performance-item {
+          width: calc((100% - 36px) / 4);
+          text-align: center;
+          padding: 12px 0;
+          & > p {
+            margin: 0;
+          }
+          .number {
+            font-size: 1.6rem;
+            font-weight: 500;
+            line-height: 3.2rem;
+          }
+          .stat {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: hsla(0, 0%, 100%, 0.66);
+          }
+          @media screen and (min-width: 568px) {
+            width: calc((100% - 24px) / 2);
+            .number {
+              font-size: 3.2rem;
+              line-height: 4rem;
+            }
+            .stat {
+              font-size: 1.4rem;
+            }
+          }
+        }
+      }
+      .quizizzGame__stats--actions {
+        margin-bottom: 10px;
+        .quizizzGame__stats--actions-reset {
+          width: 100%;
+          background-color: $button-reset-game-background;
+          border-radius: $button-reset-game-border-radius;
+          color: $text-color;
+          padding: 10px 0;
+          font-weight: 700;
+          font-size: 1.8rem;
+        }
       }
     }
   }

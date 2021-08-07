@@ -3,7 +3,7 @@ export default function AnswerContent({
   question,
   choices,
   checked,
-  chooseAnswer,
+  handleChooseAnswer,
 }) {
   let { id, answerText, isCorrect } = answer;
   let answerLength = question.answerOptions.length;
@@ -36,7 +36,7 @@ export default function AnswerContent({
       }}
     >
       <div
-        onClick={!checked ? (e) => chooseAnswer(id, question) : undefined}
+        onClick={!checked ? (e) => handleChooseAnswer(id, question) : undefined}
         className={
           "quizizzGame__answer--item-inner overlay d-flex justify-content-center align-items-center text-center" +
           hideAnswer +
