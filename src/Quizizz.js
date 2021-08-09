@@ -1,65 +1,14 @@
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import QuestionContent from "./components/QuestionContent";
 import GameStats from "./components/GameStats";
+import BeginGameCountdown from "./components/BeginGameCountdown";
 
-import countDownBeginMusic from "./audio/countDownBegin.mp3";
 import backgroundImage from "./images/background.jpg";
 
-const QUESTIONS = [
-  {
-    id: 1,
-    questionText: "Covid-19 xuất hiện lần đầu tiên ở nước nào ?",
-    isMultiple: false,
-    answerOptions: [
-      { id: 1, isCorrect: false, answerText: "Viet Nam" },
-      { id: 2, isCorrect: false, answerText: "USA" },
-      { id: 3, isCorrect: true, answerText: "China" },
-      { id: 4, isCorrect: false, answerText: "India" },
-    ],
-  },
-  {
-    id: 2,
-    questionText: "Khẩu hiệu 5K là gì ? ?",
-    isMultiple: false,
-    answerOptions: [
-      { id: 1, isCorrect: false, answerText: "Không đeo khẩu trang" },
-      { id: 2, isCorrect: false, answerText: "Không tụ tập nơi đông người " },
-      { id: 3, isCorrect: false, answerText: "Không ra đường" },
-      {
-        id: 4,
-        isCorrect: true,
-        answerText:
-          "Khoảng cách - Khẩu trang - Khử khuẩn - Khai báo y tế - Khử khuẩn",
-      },
-    ],
-  },
-  {
-    id: 3,
-    isMultiple: false,
-    questionText: "Thực hiện giãn cách xã hội tối thiểu trong bao nhiêu ngày ?",
-    answerOptions: [
-      { id: 1, isCorrect: false, answerText: "15 ngày" },
-      { id: 2, isCorrect: true, answerText: "7 ngày" },
-      { id: 3, isCorrect: false, answerText: "21 ngày" },
-      { id: 4, isCorrect: false, answerText: "1 tháng" },
-    ],
-  },
-  {
-    id: 4,
-    isMultiple: true,
-    questionText:
-      "Hiện tại tỉnh thành nào ở Việt Nam có số ca mắc nhiều nhất ?",
-    answerOptions: [
-      { id: 1, isCorrect: false, answerText: "Hà Nội" },
-      { id: 2, isCorrect: true, answerText: "Hồ Chí Minh" },
-      { id: 3, isCorrect: true, answerText: "Bắc Giang" },
-      { id: 4, isCorrect: false, answerText: "Bắc Ninh " },
-    ],
-  },
-];
+import { QUESTIONS } from "./data/data";
 
 const TIME_BEGIN_GAME = 3;
-const TIME_TO_NEXT_QUESTION = 2;
+const TIME_TO_NEXT_QUESTION = 2000;
 const TIME_LIMIT = 1000;
 
 function shuffeQuestionsList(array) {
@@ -86,37 +35,40 @@ function checkMultiCondition(choices, answer) {
 const newArr = shuffeQuestionsList(QUESTIONS);
 
 export default function Quizizz() {
-  let [listQuestions, setListQuestions] = useState(newArr); // list question đã được đảo
-  let [currentQuestion, setQuestion] = useState(null); // index của current question
+  const [listQuestions, setListQuestions] = useState(newArr); // list question đã được đảo
+  const [currentQuestion, setQuestion] = useState(null); // index của current question
 
-  let [timer, setTimer] = useState(TIME_LIMIT); // đếm time để chuyển câu hỏi
-  let [stopTimer, setStopTimer] = useState(false);
+  const [timer, setTimer] = useState(TIME_LIMIT); // đếm time để chuyển câu hỏi
 
-  let [countBeginGame, setCountBeginGame] = useState(null);
+  const [countBeginGame, setCountBeginGame] = useState(null);
 
-  let [score, setScore] = useState(0); // Lưu điểm
-  let [correctAnswer, setCorrectAnswer] = useState(0);
-  let [streak, setStreak] = useState(0);
-  let [countStreak, setCountStreak] = useState(0);
+  const [score, setScore] = useState(0); // Lưu điểm
+  const [correctAnswer, setCorrectAnswer] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [countStreak, setCountStreak] = useState(0);
 
-  let [completeGame, setCompleteGame] = useState(false);
+  const [completeGame, setCompleteGame] = useState(false);
 
-  let [choices, setChoices] = useState([]); // Mảng lưu id các đáp án được chọn
-  let [checked, setChecked] = useState(false); // True khi đã chọn đủ đáp án
-  let [checkedResult, setCheckedResult] = useState(false); // True khi lựa chọn các đáp án đúng
-  let [chosenAnswer, setChosenAnswer] = useState(false);
+  const [choices, setChoices] = useState([]); // Mảng lưu id các đáp án được chọn
+  const [checked, setChecked] = useState(false); // True khi đã chọn đủ đáp án
+  const [checkedResult, setCheckedResult] = useState(false); // True khi lựa chọn các đáp án đúng
+  const [chosenAnswer, setChosenAnswer] = useState(false);
 
-  let [playCountDownTimerMusic, setPlayCountDownTimerMusic] = useState(false);
+  const [playCountDownTimerMusic, setPlayCountDownTimerMusic] = useState(false);
+
+  let beginCountDown = useRef(null);
+  let timerCountDown = useRef(null);
 
   let content = "";
 
   function startGame() {
     setCountBeginGame(TIME_BEGIN_GAME);
     setPlayCountDownTimerMusic(true);
-    const countDown = setInterval(() => {
+
+    beginCountDown.current = setInterval(() => {
       setCountBeginGame((prevTimer) => {
         if (prevTimer === null) {
-          clearInterval(countDown);
+          clearInterval(beginCountDown.current);
           setPlayCountDownTimerMusic(false);
         } else {
           if (prevTimer > 0) {
@@ -124,8 +76,8 @@ export default function Quizizz() {
           } else {
             setQuestion(0);
             resetState();
-            // countTimer();
-            clearInterval(countDown);
+            countTimer();
+            clearInterval(beginCountDown.current);
             setPlayCountDownTimerMusic(false);
             return null;
           }
@@ -134,81 +86,45 @@ export default function Quizizz() {
       });
     }, 1000);
   }
-  function resetState() {
-    setScore(0);
-    setCompleteGame(false);
-    setChoices([]);
-    setChecked(false);
-    setCheckedResult(false);
-    setChosenAnswer(false);
-    setPlayCountDownTimerMusic(false);
-    setCorrectAnswer(0);
-    setStopTimer(false);
-  }
-  function resetGame() {
-    setCountBeginGame(null);
-    setTimer(TIME_LIMIT);
-    setListQuestions(newArr);
-    setQuestion(null);
-    setStreak(0);
-    setCountStreak(0);
-    resetState();
-  }
-  function setStateWhenNextQuestion() {
-    setTimer(TIME_LIMIT);
-    setChecked(false);
-    setCheckedResult(false);
-    setChosenAnswer(false);
-    setChoices([]);
-  }
   function countTimer() {
-    const interval = setInterval(() => {
+    timerCountDown.current = setInterval(() => {
       setTimer((prevTimer) => {
-        if (prevTimer > 0) {
-          return prevTimer - 1;
+        if (prevTimer === 0) {
+          clearInterval(timerCountDown.current);
+          if (currentQuestion === listQuestions.length - 1) {
+            setCompleteGame(true);
+          } else {
+            setStateWhenNextQuestion();
+            countTimer();
+            setQuestion(currentQuestion + 1);
+          }
+          return null;
         } else {
-          setQuestion((prevQuestion) => {
-            if (prevQuestion < listQuestions.length - 1) {
-              setStateWhenNextQuestion();
-              return prevQuestion + 1;
-            } else {
-              setCompleteGame(true);
-              clearInterval(interval);
-            }
-          });
-          return TIME_LIMIT;
+          return prevTimer - 1;
         }
       });
     }, 10);
-    if (stopTimer) return clearInterval(interval);
   }
+
   function getNextQuestion() {
-    let timeCounter = TIME_TO_NEXT_QUESTION;
-    const interval = setInterval(() => {
-      if (timeCounter == 0) {
-        setQuestion((prevQuestion) => {
-          if (prevQuestion < listQuestions.length - 1) {
-            setStateWhenNextQuestion();
-            setStopTimer(false);
-            // countTimer();
-            return prevQuestion + 1;
-          } else {
-            setCompleteGame(true);
-            return prevQuestion;
-          }
-        });
-        clearInterval(interval);
+    setTimeout(() => {
+      clearInterval(timerCountDown.current);
+      if (currentQuestion === listQuestions.length - 1) {
+        setCompleteGame(true);
       } else {
-        timeCounter--;
+        setStateWhenNextQuestion();
+        countTimer();
+        setQuestion(currentQuestion + 1);
       }
-    }, 1000);
+    }, TIME_TO_NEXT_QUESTION);
   }
 
   function handleChooseAnswer(id, question) {
     let answer = question.answerOptions.filter((answer) => answer.id == id)[0];
     let remainingTime = timer;
-    console.log(remainingTime);
-    setStopTimer(true);
+
+    clearInterval(timerCountDown.current);
+
     if (!question.isMultiple) {
       // One correct answer
       setChecked(true);
@@ -221,7 +137,9 @@ export default function Quizizz() {
         (item) => item.isCorrect
       ).length;
       let arrChoices = [...choices];
+
       setChosenAnswer(true);
+
       if (arrChoices.includes(Number(id))) {
         // đã có trong mảng choice > uncheck
         arrChoices.splice(arrChoices.indexOf(Number(id)), 1);
@@ -241,6 +159,36 @@ export default function Quizizz() {
       }
     }
   }
+  function resetState() {
+    setScore(0);
+    setCompleteGame(false);
+    setChoices([]);
+    setChecked(false);
+    setCheckedResult(false);
+    setChosenAnswer(false);
+    setPlayCountDownTimerMusic(false);
+    setCorrectAnswer(0);
+    timerCountDown.current = null;
+  }
+  function resetGame() {
+    setCountBeginGame(null);
+    setTimer(TIME_LIMIT);
+    setListQuestions(newArr);
+    setQuestion(null);
+    setStreak(0);
+    setCountStreak(0);
+    beginCountDown.current = null;
+    resetState();
+  }
+  function setStateWhenNextQuestion() {
+    timerCountDown.current = null;
+    setTimer(TIME_LIMIT);
+    setChecked(false);
+    setCheckedResult(false);
+    setChosenAnswer(false);
+    setChoices([]);
+  }
+
   function checkAnswerResult(condition, remainingTime) {
     if (condition) {
       calculateScore(remainingTime);
@@ -251,6 +199,7 @@ export default function Quizizz() {
     }
     getNextQuestion();
   }
+
   function calculateScore(remainingTime) {
     let oldStreak = streak;
     let newScore = score;
@@ -260,6 +209,7 @@ export default function Quizizz() {
     }
     setScore(newScore + remainingTime + (oldStreak + 1) * 100);
   }
+
   if (completeGame) {
     content = (
       <GameStats
@@ -307,14 +257,7 @@ export default function Quizizz() {
                 Start
               </button>
             ) : (
-              <div className="quizizzGame__start--countdown w-100 text-center">
-                <p className={"mb-0 animate__animated animate__zoomIn"}>
-                  {countBeginGame === 0 ? "GO!" : countBeginGame}
-                </p>
-                <audio autoPlay={true}>
-                  <source type="audio/mp3" src={countDownBeginMusic} />
-                </audio>
-              </div>
+              <BeginGameCountdown countBeginGame={countBeginGame} />
             )}
           </div>
         </div>
