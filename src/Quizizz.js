@@ -91,14 +91,17 @@ export default function Quizizz() {
       setTimer((prevTimer) => {
         if (prevTimer === 0) {
           clearInterval(timerCountDown.current);
-          if (currentQuestion === listQuestions.length - 1) {
-            setCompleteGame(true);
-          } else {
-            setStateWhenNextQuestion();
-            countTimer();
-            setQuestion(currentQuestion + 1);
-          }
-          return null;
+          setQuestion((prevQuestion) => {
+            if (prevQuestion < listQuestions.length - 1) {
+              setStateWhenNextQuestion();
+              countTimer();
+              return prevQuestion + 1;
+            } else {
+              setCompleteGame(true);
+              return prevQuestion;
+            }
+          });
+          return TIME_LIMIT;
         } else {
           return prevTimer - 1;
         }
@@ -168,6 +171,7 @@ export default function Quizizz() {
     setChosenAnswer(false);
     setPlayCountDownTimerMusic(false);
     setCorrectAnswer(0);
+    clearInterval(timerCountDown.current);
     timerCountDown.current = null;
   }
   function resetGame() {
@@ -177,10 +181,12 @@ export default function Quizizz() {
     setQuestion(null);
     setStreak(0);
     setCountStreak(0);
+    clearInterval(beginCountDown.current);
     beginCountDown.current = null;
     resetState();
   }
   function setStateWhenNextQuestion() {
+    clearInterval(timerCountDown.current);
     timerCountDown.current = null;
     setTimer(TIME_LIMIT);
     setChecked(false);
