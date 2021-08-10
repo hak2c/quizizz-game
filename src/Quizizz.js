@@ -3,6 +3,8 @@ import QuestionContent from "./components/QuestionContent";
 import GameStats from "./components/GameStats";
 import BeginGameCountdown from "./components/BeginGameCountdown";
 
+import { shuffeQuestionsList, checkMultiCondition } from "./components/Utils";
+
 import backgroundImage from "./images/background.jpg";
 
 import { QUESTIONS } from "./data/data";
@@ -10,27 +12,6 @@ import { QUESTIONS } from "./data/data";
 const TIME_BEGIN_GAME = 3;
 const TIME_TO_NEXT_QUESTION = 2000;
 const TIME_LIMIT = 1000;
-
-function shuffeQuestionsList(array) {
-  for (let i = 0; i < array.length; i++) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-function checkMultiCondition(choices, answer) {
-  let result = true;
-  for (let i = 0; i < choices.length; i++) {
-    if (
-      answer.filter((item) => item.id === choices[i] && item.isCorrect)
-        .length === 0
-    ) {
-      result = false;
-      break;
-    }
-  }
-  return result;
-}
 
 const newArr = shuffeQuestionsList(QUESTIONS);
 
@@ -52,9 +33,6 @@ export default function Quizizz() {
   const [choices, setChoices] = useState([]); // Mảng lưu id các đáp án được chọn
   const [checked, setChecked] = useState(false); // True khi đã chọn đủ đáp án
   const [checkedResult, setCheckedResult] = useState(false); // True khi lựa chọn các đáp án đúng
-  const [chosenAnswer, setChosenAnswer] = useState(false);
-
-  const [playCountDownTimerMusic, setPlayCountDownTimerMusic] = useState(false);
 
   let beginCountDown = useRef(null);
   let timerCountDown = useRef(null);
@@ -63,13 +41,11 @@ export default function Quizizz() {
 
   function startGame() {
     setCountBeginGame(TIME_BEGIN_GAME);
-    setPlayCountDownTimerMusic(true);
 
     beginCountDown.current = setInterval(() => {
       setCountBeginGame((prevTimer) => {
         if (prevTimer === null) {
           clearInterval(beginCountDown.current);
-          setPlayCountDownTimerMusic(false);
         } else {
           if (prevTimer > 0) {
             return prevTimer - 1;
@@ -78,7 +54,6 @@ export default function Quizizz() {
             resetState();
             countTimer();
             clearInterval(beginCountDown.current);
-            setPlayCountDownTimerMusic(false);
             return null;
           }
         }
@@ -91,16 +66,6 @@ export default function Quizizz() {
       setTimer((prevTimer) => {
         if (prevTimer === 0) {
           clearInterval(timerCountDown.current);
-          setQuestion((prevQuestion) => {
-            if (prevQuestion < listQuestions.length - 1) {
-              setStateWhenNextQuestion();
-              countTimer();
-              return prevQuestion + 1;
-            } else {
-              setCompleteGame(true);
-              return prevQuestion;
-            }
-          });
           return TIME_LIMIT;
         } else {
           return prevTimer - 1;
@@ -131,7 +96,6 @@ export default function Quizizz() {
     if (!question.isMultiple) {
       // One correct answer
       setChecked(true);
-      setChosenAnswer(true);
       setChoices([Number(id)]);
       checkAnswerResult(answer.isCorrect, remainingTime);
     } else {
@@ -141,24 +105,16 @@ export default function Quizizz() {
       ).length;
       let arrChoices = [...choices];
 
-      setChosenAnswer(true);
-
-      if (arrChoices.includes(Number(id))) {
-        // đã có trong mảng choice > uncheck
-        arrChoices.splice(arrChoices.indexOf(Number(id)), 1);
-        setChoices(arrChoices);
-      } else {
-        // chưa có > check
-        arrChoices.push(Number(id));
-        setChoices(arrChoices);
-        if (arrChoices.length === countRightAnswer) {
-          setChecked(true);
-          // đủ đáp án
-          checkAnswerResult(
-            checkMultiCondition(arrChoices, question.answerOptions),
-            remainingTime
-          );
-        }
+      // chưa có > check
+      arrChoices.push(Number(id));
+      setChoices(arrChoices);
+      if (arrChoices.length === countRightAnswer) {
+        setChecked(true);
+        // đủ đáp án
+        checkAnswerResult(
+          checkMultiCondition(arrChoices, question.answerOptions),
+          remainingTime
+        );
       }
     }
   }
@@ -168,8 +124,6 @@ export default function Quizizz() {
     setChoices([]);
     setChecked(false);
     setCheckedResult(false);
-    setChosenAnswer(false);
-    setPlayCountDownTimerMusic(false);
     setCorrectAnswer(0);
     clearInterval(timerCountDown.current);
     timerCountDown.current = null;
@@ -185,13 +139,13 @@ export default function Quizizz() {
     beginCountDown.current = null;
     resetState();
   }
+
   function setStateWhenNextQuestion() {
     clearInterval(timerCountDown.current);
     timerCountDown.current = null;
     setTimer(TIME_LIMIT);
     setChecked(false);
     setCheckedResult(false);
-    setChosenAnswer(false);
     setChoices([]);
   }
 
@@ -236,10 +190,12 @@ export default function Quizizz() {
         streak={streak}
         checked={checked}
         checkedResult={checkedResult}
-        chosenAnswer={chosenAnswer}
         choices={choices}
-        playMusic={playCountDownTimerMusic}
         handleChooseAnswer={handleChooseAnswer}
+        setQuestion={setQuestion}
+        setCompleteGame={setCompleteGame}
+        setStateWhenNextQuestion={setStateWhenNextQuestion}
+        countTimer={countTimer}
       />
     );
   }

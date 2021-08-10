@@ -2,8 +2,11 @@ import AnswerTopContent from "./AnswerTopContent";
 import AnswerContent from "./AnswerContent";
 import AnswerBottomContent from "./AnswerBottomContent";
 
+// import { setStateWhenNextQuestion } from "./Utils";
+
 import countDownTimerMusic from "../audio/countDownTimer.mp3";
 import backgroundImage from "../images/background.jpg";
+import { useEffect } from "react";
 
 export default function QuestionContent({
   questions,
@@ -15,8 +18,11 @@ export default function QuestionContent({
   checkedResult,
   chosenAnswer,
   choices,
-  playMusic,
   handleChooseAnswer,
+  setQuestion,
+  setCompleteGame,
+  setStateWhenNextQuestion,
+  countTimer,
 }) {
   const question = questions[currentQuestion];
   const countRightAnswer = question.answerOptions.filter(
@@ -32,6 +38,27 @@ export default function QuestionContent({
       key={answer.id}
     />
   ));
+
+  let playMusic = true;
+
+  useEffect(() => {
+    if (timer === 0) {
+      setQuestion((prevQuestion) => {
+        if (prevQuestion < questions.length - 1) {
+          setStateWhenNextQuestion();
+          countTimer();
+          return prevQuestion + 1;
+        } else {
+          setCompleteGame(true);
+          return prevQuestion;
+        }
+      });
+    }
+  }, [timer]);
+
+  useEffect(() => {
+    playMusic = choices.length > 0 ? false : true;
+  }, [choices]);
 
   return (
     <div className="quizizzGame__question h-100">
@@ -73,7 +100,7 @@ export default function QuestionContent({
         <AnswerBottomContent checked={checked} checkedResult={checkedResult} />
       </div>
       {playMusic && (
-        <audio autoPlay={true}>
+        <audio autoPlay={false}>
           <source type="audio/mp3" src={countDownTimerMusic} />
         </audio>
       )}

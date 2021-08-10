@@ -18,25 +18,29 @@ export default function AnswerContent({
 
   let hover = choices.includes(id) && !checked ? " hover" : "";
 
-  let showResultBg = "";
-  if (checked && !choices.includes(id)) {
-    if (isCorrect) showResultBg = " right-answer";
-  }
+  let showResultBg =
+    checked && !choices.includes(id) && isCorrect ? " right-answer" : "";
+
+  const itemLength =
+    "calc((100% - (20px + " +
+    (answerLength - 1) * 10 +
+    "px)) /" +
+    answerLength +
+    ")";
 
   return (
     <div
       className="quizizzGame__answer--item"
       style={{
-        width:
-          "calc((100% - (20px + " +
-          (answerLength - 1) * 10 +
-          "px)) /" +
-          answerLength +
-          ")",
+        width: itemLength,
       }}
     >
       <div
-        onClick={!checked ? (e) => handleChooseAnswer(id, question) : undefined}
+        onClick={
+          !checked && !choices.includes(id)
+            ? (e) => handleChooseAnswer(id, question)
+            : undefined
+        }
         className={
           "quizizzGame__answer--item-inner overlay d-flex justify-content-center align-items-center text-center" +
           hideAnswer +
